@@ -1,6 +1,5 @@
 import { dates } from "/utils/dates"
 
-// const apiKey = process.env.POLYGON_API_KEY
 const apiKey = import.meta.env.VITE_POLYGON_API_KEY
 
 const tickersArr = []
@@ -52,6 +51,7 @@ async function fetchStockData() {
         const status = await response.status
         if (status === 200) {
           apiMessage.innerText = "Creating report..."
+          console.log(data)
           return data
         } else {
           loadingArea.innerText = "There was an error fetching stock data."
