@@ -1,7 +1,7 @@
 {
   "name": "project",
-  "dependencies": {},
   "devDependencies": {
+    "@rollup/plugin-replace": "^5.0.5",
     "vite": "latest"
   },
   "scripts": {
