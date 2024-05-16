@@ -11,26 +11,36 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 })
 
-const messages = [
-  {
-    role: "system",
-    content: "you are a third grade school teacher",
-  },
-  {
-    role: "user",
-    content:
-      "explain quantum physics in 3 sentences or less",
-  },
-]
+// const messages = [
+//   {
+//     role: "system",
+//     content:
+//       "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API",
+//   },
+//   {
+//     role: "user",
+//     content: "",
+//   },
+// ]
 
-async function main() {
+async function main(data) {
   const chatCompletion = await openai.chat.completions.create({
-    messages: messages,
+    messages: [
+      {
+        role: "system",
+        content:
+          "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API and give a 1 sentence recommendation for a 1 week, 1 month and 1 year time lines.",
+      },
+      {
+        role: "user",
+        content: data,
+      },
+    ],
     model: "gpt-4o",
   })
-  console.log(chatCompletion.choices[0])
+  console.log(chatCompletion.choices[0].message.content)
+  renderReport(chatCompletion.choices[0].message.content)
 }
-main()
 
 const generateReportBtn = document.querySelector(".generate-report-btn")
 
@@ -79,7 +89,6 @@ async function fetchStockData() {
         const status = await response.status
         if (status === 200) {
           apiMessage.innerText = "Creating report..."
-          console.log(data)
           return data
         } else {
           loadingArea.innerText = "There was an error fetching stock data."
@@ -95,6 +104,8 @@ async function fetchStockData() {
 
 async function fetchReport(data) {
   /** AI goes here **/
+
+  return main(data)
 }
 
 function renderReport(output) {
