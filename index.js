@@ -11,37 +11,6 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 })
 
-// const messages = [
-//   {
-//     role: "system",
-//     content:
-//       "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API",
-//   },
-//   {
-//     role: "user",
-//     content: "",
-//   },
-// ]
-
-async function main(data) {
-  const chatCompletion = await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content:
-          "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API and give a 1 sentence recommendation for a 1 week, 1 month and 1 year time lines.",
-      },
-      {
-        role: "user",
-        content: data,
-      },
-    ],
-    model: "gpt-4o",
-  })
-  console.log(chatCompletion.choices[0].message.content)
-  renderReport(chatCompletion.choices[0].message.content)
-}
-
 const generateReportBtn = document.querySelector(".generate-report-btn")
 
 generateReportBtn.addEventListener("click", fetchStockData)
@@ -102,9 +71,30 @@ async function fetchStockData() {
   }
 }
 
-async function fetchReport(data) {
-  /** AI goes here **/
+async function main(data) {
+  try {
+    const chatCompletion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content:
+            "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API and give a 1 sentence recommendation for a 1 week, 1 month and 1 year time lines.",
+        },
+        {
+          role: "user",
+          content: data,
+        },
+      ],
+      model: "gpt-4o",
+    })
+    renderReport(chatCompletion.choices[0].message.content)
+  } catch (err) {
+    loadingArea.innerText = "There was an error fetching stock data."
+    console.error("error: ", err)
+  }
+}
 
+async function fetchReport(data) {
   return main(data)
 }
 
