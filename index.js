@@ -1,8 +1,36 @@
 import { dates } from "/utils/dates"
+import OpenAI from "openai"
 
-const apiKey = import.meta.env.VITE_POLYGON_API_KEY
+const polygonApiKey = import.meta.env.VITE_POLYGON_API_KEY
+const openAiApiKey = import.meta.env.VITE_OPENAI_API_KEY
 
 const tickersArr = []
+
+const openai = new OpenAI({
+  apiKey: openAiApiKey,
+  dangerouslyAllowBrowser: true,
+})
+
+const messages = [
+  {
+    role: "system",
+    content: "you are a third grade school teacher",
+  },
+  {
+    role: "user",
+    content:
+      "explain quantum physics in 3 sentences or less",
+  },
+]
+
+async function main() {
+  const chatCompletion = await openai.chat.completions.create({
+    messages: messages,
+    model: "gpt-4o",
+  })
+  console.log(chatCompletion.choices[0])
+}
+main()
 
 const generateReportBtn = document.querySelector(".generate-report-btn")
 
@@ -45,7 +73,7 @@ async function fetchStockData() {
   try {
     const stockData = await Promise.all(
       tickersArr.map(async ticker => {
-        const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${apiKey}`
+        const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${polygonApiKey}`
         const response = await fetch(url)
         const data = await response.text()
         const status = await response.status
