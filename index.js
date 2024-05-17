@@ -72,22 +72,28 @@ async function fetchStockData() {
 }
 
 async function main(data) {
+  const messages = [
+    {
+      role: "system",
+      content:
+        "You are a trading guru. Given data on share prices over the past 3 days, write a report of no more than 3 sentences recommending whether to buy, hold or sell the stock. Use examples provided between ### to set the style and tone of your response.",
+      temperature: 1.15,
+    },
+    {
+      role: "user",
+      content: `${data}
+        ### 
+        Aye peep this fam, the AAPL ting been showing mad increases in share price over the past 3 days, with a volume-weighted average price going dumb from $187.18 to $189.65. We going all the way to the moon with this trend, baaabyy. So you better cop AAPL stock if you trying live it big and do it large, ya dig.
+        ###`,
+    },
+  ]
+
   try {
     const chatCompletion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content:
-            "you are an expert in trading stocks who produces stock reports for clients. You need to interpret stock data that was fetched from Polygon API and give a 1 sentence recommendation for a 1 week, 1 month and 1 year time lines.",
-        },
-        {
-          role: "user",
-          content: data,
-        },
-      ],
+      messages: messages,
       model: "gpt-4o",
     })
-    renderReport(chatCompletion.choices[0].message.content)
+    renderReport(chatCompletion.choices[0].message.content.replace(/[*#]/g, ""))
   } catch (err) {
     loadingArea.innerText = "There was an error fetching stock data."
     console.error("error: ", err)
