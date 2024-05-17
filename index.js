@@ -78,6 +78,8 @@ async function main(data) {
       content:
         "You are a trading guru. Given data on share prices over the past 3 days, write a report of no more than 3 sentences recommending whether to buy, hold or sell the stock. Use examples provided between ### to set the style and tone of your response.",
       temperature: 1.15,
+      presence_penalty: 0,
+      frequency_penalty: 0
     },
     {
       role: "user",
@@ -91,7 +93,7 @@ async function main(data) {
   try {
     const chatCompletion = await openai.chat.completions.create({
       messages: messages,
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo-0125",
     })
     renderReport(chatCompletion.choices[0].message.content.replace(/[*#]/g, ""))
   } catch (err) {
