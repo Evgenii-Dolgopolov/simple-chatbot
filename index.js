@@ -18,7 +18,7 @@ generateReportBtn.addEventListener("click", fetchStockData)
 document.getElementById("ticker-input-form").addEventListener("submit", e => {
   e.preventDefault()
   const tickerInput = document.getElementById("ticker-input")
-  if (tickerInput.value.length > 2) {
+  if (tickerInput.value.length > 1) {
     generateReportBtn.disabled = false
     const newTickerStr = tickerInput.value
     tickersArr.push(newTickerStr.toUpperCase())
@@ -28,7 +28,7 @@ document.getElementById("ticker-input-form").addEventListener("submit", e => {
     const label = document.getElementsByTagName("label")[0]
     label.style.color = "red"
     label.textContent =
-      "You must add at least one ticker. A ticker is a 3 letter or more code for a stock. E.g TSLA for Tesla."
+      "You must add a ticker. A ticker is a 3 letter or more code for a stock. E.g TSLA for Tesla."
   }
 })
 
@@ -76,7 +76,7 @@ async function main(data) {
     {
       role: "system",
       content:
-        "You are a trading guru. Given data on share prices over the past 3 days, write a report of no more than 3 sentences recommending whether to buy, hold or sell the stock. Use examples provided between ### to set the style and tone of your response.",
+        "You are a trading guru. Given data on share prices over the past 3 days, write a report with recommendation for the stocks provided. Use examples provided between ### to set the style and tone of your response.",
       temperature: 1.2,
       presence_penalty: 0,
       frequency_penalty: 0
