@@ -77,7 +77,7 @@ async function main(data) {
       role: "system",
       content:
         "You are a trading guru. Given data on share prices over the past 3 days, write a report of no more than 3 sentences recommending whether to buy, hold or sell the stock. Use examples provided between ### to set the style and tone of your response.",
-      temperature: 1.15,
+      temperature: 1.2,
       presence_penalty: 0,
       frequency_penalty: 0
     },
