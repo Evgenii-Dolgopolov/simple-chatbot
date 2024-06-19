@@ -1,15 +1,9 @@
 import { dates } from "/utils/dates"
-import OpenAI from "openai"
 
 const polygonApiKey = import.meta.env.VITE_POLYGON_API_KEY
 const openAiApiKey = import.meta.env.VITE_OPENAI_API_KEY
 
 const tickersArr = []
-
-const openai = new OpenAI({
-  apiKey: openAiApiKey,
-  dangerouslyAllowBrowser: true,
-})
 
 const generateReportBtn = document.querySelector(".generate-report-btn")
 
@@ -54,11 +48,13 @@ async function fetchStockData() {
       tickersArr.map(async ticker => {
         const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${polygonApiKey}`
         const response = await fetch(url)
-        const data = await response.text()
+        const data = await response.json()
         const status = await response.status
         if (status === 200) {
           apiMessage.innerText = "Creating report..."
-          return data
+
+          delete data.request_id
+          return JSON.stringify(data)
         } else {
           loadingArea.innerText = "There was an error fetching stock data."
         }
@@ -67,19 +63,16 @@ async function fetchStockData() {
     fetchReport(stockData.join(""))
   } catch (err) {
     loadingArea.innerText = "There was an error fetching stock data."
-    console.error("error: ", err)
+    console.error(err.message)
   }
 }
 
-async function main(data) {
+async function fetchReport(data) {
   const messages = [
     {
       role: "system",
       content:
-        "You are a trading guru. Given data on share prices over the past 3 days, write a report with recommendation for the stocks provided. Use examples provided between ### to set the style and tone of your response.",
-      temperature: 1.2,
-      presence_penalty: 0,
-      frequency_penalty: 0
+        "You are a trading analyst. Given data on share prices over the past 3 days, write a report with recommendation for the stocks provided. Use examples provided between ### to set the style and tone of your response. Don't include ### in your response.",
     },
     {
       role: "user",
@@ -91,19 +84,26 @@ async function main(data) {
   ]
 
   try {
-    const chatCompletion = await openai.chat.completions.create({
-      messages: messages,
-      model: "gpt-3.5-turbo-0125",
+    const url = "https://openai-api-worker.uizz.workers.dev"
+    
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(messages),
     })
-    renderReport(chatCompletion.choices[0].message.content.replace(/[*#]/g, ""))
-  } catch (err) {
-    loadingArea.innerText = "There was an error fetching stock data."
-    console.error("error: ", err)
-  }
-}
+    const data = await response.json()
 
-async function fetchReport(data) {
-  return main(data)
+    if (!response.ok) {
+      throw new Error(`Worker Error: ${data.error}`)
+    }
+    renderReport(data.content)
+    
+  } catch (err) {
+    console.error(err.message)
+    loadingArea.innerText = "Unable to access AI. Please refresh and try again"
+  }
 }
 
 function renderReport(output) {
